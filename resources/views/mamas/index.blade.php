@@ -35,6 +35,16 @@
                 <td class="py-2 px-4 border flex gap-2">
                     <a href="{{ route('mamas.show', $mama) }}" class="text-blue-500">View</a>
                     <a href="{{ route('mamas.edit', $mama) }}" class="text-green-500">Edit</a>
+
+                    <!-- AddRecord button -->
+                    <button 
+                        type="button" 
+                        onclick="openModal({{ $mama->id }}, '{{ $mama->name }}')" 
+                        class="text-purple-500"
+                    >
+                        AddRecord
+                    </button>
+
                     <form action="{{ route('mamas.destroy', $mama) }}" method="POST" onsubmit="return confirm('Delete this mama?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="text-red-500">Delete</button>
@@ -49,4 +59,47 @@
         </tbody>
     </table>
 </div>
+
+{{-- Modal --}}
+<div id="addRecordModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-1/3 p-6">
+        <h2 id="modalTitle" class="text-xl font-bold mb-4">Add Diagnosis & Results</h2>
+        <form id="addRecordForm" method="POST">
+            @csrf
+            <div class="mb-4">
+                <label class="block font-medium">Diagnosis</label>
+                <textarea name="diagnosis" class="w-full border px-3 py-2 rounded" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block font-medium">Results</label>
+                <textarea name="results" class="w-full border px-3 py-2 rounded" required></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white rounded">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Scripts --}}
+<script>
+    function openModal(mamaId, mamaName) {
+        const modal = document.getElementById('addRecordModal');
+        const form = document.getElementById('addRecordForm');
+        const title = document.getElementById('modalTitle');
+
+        // set dynamic action URL
+        form.action = `/mamas/${mamaId}/store-record`;
+
+        // set mama name in modal title
+        title.textContent = `Add Diagnosis & Results for ${mamaName}`;
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('addRecordModal').classList.add('hidden');
+    }
+</script>
 @endsection

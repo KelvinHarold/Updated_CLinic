@@ -10,11 +10,12 @@ class Mama extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-      'name', 'age', 'id_number', 'contact', 'address', 
-        'pregnancy_stage', 'medical_history', 'type', 
-        'email', 'password', 'user_id'
-    ];
+  protected $fillable = [
+  'name', 'age', 'id_number', 'contact', 'address', 
+  'pregnancy_stage', 'diagnosis', 'results', 'type', 
+  'email', 'password', 'user_id'
+];
+
 
     
     protected $hidden = ['password'];

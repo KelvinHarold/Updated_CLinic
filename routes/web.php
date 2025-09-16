@@ -81,6 +81,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('mamas/{mama}/edit', [MamaController::class, 'edit'])->name('mamas.edit');
     Route::put('mamas/{mama}', [MamaController::class, 'update'])->name('mamas.update');
     Route::delete('mamas/{mama}', [MamaController::class, 'destroy'])->name('mamas.destroy');
+    // Ku-save Diagnosis & Results kutoka modal
+Route::post('/mamas/{mama}/store-record', [MamaController::class, 'storeRecord'])->name('mamas.storeRecord');
+
     //Kuonesha details zake
       Route::get('/mama/profile', [MamaController::class, 'profile'])->name('mamas.profile');
       //Kuonesha Vaccine za mtoto wake

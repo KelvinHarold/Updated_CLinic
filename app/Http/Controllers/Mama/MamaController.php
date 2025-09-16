@@ -68,15 +68,17 @@ public function store(Request $request) {
     }
 
     public function update(Request $request, Mama $mama) {
-        $validated = $request->validate([
-            'name'=>'required|string|max:255',
-            'age'=>'required|integer',
-            'contact'=>'nullable|string',
-            'address'=>'nullable|string',
-            'pregnancy_stage'=>'nullable|string',
-            'medical_history'=>'nullable|string',
-            'type'=>'required|string',
-        ]);
+      $validated = $request->validate([
+    'name'=>'required|string|max:255',
+    'age'=>'required|integer',
+    'contact'=>'nullable|string',
+    'address'=>'nullable|string',
+    'pregnancy_stage'=>'nullable|string',
+    'diagnosis'=>'nullable|string',
+    'results'=>'nullable|string',
+    'type'=>'required|string',
+]);
+
 
         $mama->update($validated);
 
@@ -100,6 +102,24 @@ public function store(Request $request) {
 
     return view('mamas.profile', compact('mama'));
 }
+
+public function addRecord(Mama $mama)
+{
+    return view('mamas.add-record', compact('mama'));
+}
+
+public function storeRecord(Request $request, Mama $mama)
+{
+    $validated = $request->validate([
+        'diagnosis' => 'required|string',
+        'results' => 'required|string',
+    ]);
+
+    $mama->update($validated);
+
+    return redirect()->route('mamas.index')->with('success', 'Diagnosis & Results added successfully!');
+}
+
 
     
 }
