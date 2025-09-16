@@ -13,6 +13,10 @@
                     <th class="border px-4 py-2">Name</th>
                     <th class="border px-4 py-2">Date of Birth</th>
                     <th class="border px-4 py-2">Health Status</th>
+                    <th class="border px-4 py-2">Diagnosis</th>
+                    <th class="border px-4 py-2">Results</th>
+                    <th class="border px-4 py-2">Mama</th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +24,11 @@
                 <tr>
                     <td class="border px-4 py-2">{{ $child->name }}</td>
                     <td class="border px-4 py-2">{{ $child->dob }}</td>
-                    <td class="border px-4 py-2">{{ $child->health_status }}</td>
+                    <td class="border px-4 py-2">{{ $child->health_status ?? 'N/A' }}</td>
+                    <td class="border px-4 py-2">{{ $child->diagnosis ?? 'N/A' }}</td>
+                    <td class="border px-4 py-2">{{ $child->results ?? 'N/A' }}</td>
+                    <td class="border px-4 py-2">{{ $child->mama->name ?? 'N/A' }}</td>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>

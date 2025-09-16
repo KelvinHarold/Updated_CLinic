@@ -18,17 +18,22 @@ class ChildController extends Controller
         return view('children.create', compact('mamas'));
     }
 
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'name'=>'required|string|max:255',
-            'dob'=>'required|date',
-            'mama_id'=>'required|exists:mamas,id',
-            'health_status'=>'nullable|string'
-        ]);
+public function storeRecord(Request $request, Child $child)
+{
+    $validated = $request->validate([
+        'diagnosis' => 'required|string',
+        'results' => 'required|string',
+    ]);
 
-        Child::create($validated);
-        return redirect()->route('children.index');
-    }
+    // Create new record for child
+    $newChildRecord = $child->replicate(); // replicate all existing fields
+    $newChildRecord->diagnosis = $validated['diagnosis'];
+    $newChildRecord->results = $validated['results'];
+    $newChildRecord->push(); // save as new row
+
+    return redirect()->route('children.index')->with('success', 'Diagnosis & Results added successfully!');
+}
+
 
     public function show(Child $child) {
         return view('children.show', compact('child'));

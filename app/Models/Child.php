@@ -10,11 +10,14 @@ class Child extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'dob',
-        'mama_id',
-        'health_status',
-    ];
+    'name',
+    'dob',
+    'mama_id',
+    'health_status',
+    'diagnosis',
+    'results',
+];
+
 
     public function mama() {
         return $this->belongsTo(Mama::class);

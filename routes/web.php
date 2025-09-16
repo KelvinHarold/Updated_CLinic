@@ -97,6 +97,8 @@ Route::post('/mamas/{mama}/store-record', [MamaController::class, 'storeRecord']
     Route::get('children/{child}/edit', [ChildController::class, 'edit'])->name('children.edit');
     Route::put('children/{child}', [ChildController::class, 'update'])->name('children.update');
     Route::delete('children/{child}', [ChildController::class, 'destroy'])->name('children.destroy');
+    Route::post('/children/{child}/store-record', [ChildController::class, 'storeRecord'])->name('children.storeRecord');
+
 
     // Appointments
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
