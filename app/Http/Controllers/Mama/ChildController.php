@@ -1,78 +1,100 @@
 <?php
 
 namespace App\Http\Controllers\Mama;
+
 use App\Http\Controllers\Controller;
 use App\Models\Child;
 use App\Models\Mama;
+use App\Models\ChildRecord; // Model mpya kwa records
 use Illuminate\Http\Request;
 
 class ChildController extends Controller
 {
+    // Show all children
     public function index() {
-        $children = Child::all();
+        $children = Child::with('records','mama')->get(); // load records & mama
         return view('children.index', compact('children'));
     }
 
+    // Show create form
     public function create() {
         $mamas = Mama::all();
         return view('children.create', compact('mamas'));
     }
 
-public function storeRecord(Request $request, Child $child)
-{
-    $validated = $request->validate([
-        'diagnosis' => 'required|string',
-        'results' => 'required|string',
-    ]);
+    // Store new child
+    public function store(Request $request) {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'dob' => 'required|date',
+            'mama_id' => 'required|exists:mamas,id',
+            'health_status' => 'nullable|string',
+        ]);
 
-    // Create new record for child
-    $newChildRecord = $child->replicate(); // replicate all existing fields
-    $newChildRecord->diagnosis = $validated['diagnosis'];
-    $newChildRecord->results = $validated['results'];
-    $newChildRecord->push(); // save as new row
+        Child::create($validated); // save to children table
 
-    return redirect()->route('children.index')->with('success', 'Diagnosis & Results added successfully!');
-}
+        return redirect()->route('children.index')->with('success', 'Child added successfully!');
+    }
 
+    // Store diagnosis & results (modal)
+    public function storeRecord(Request $request, Child $child)
+    {
+        $validated = $request->validate([
+            'diagnosis' => 'required|string',
+            'results' => 'required|string',
+        ]);
 
+        // Save to child_records table
+        $child->records()->create([
+            'diagnosis' => $validated['diagnosis'],
+            'results' => $validated['results'],
+        ]);
+
+        return redirect()->route('children.index')->with('success', 'Diagnosis & Results added successfully!');
+    }
+
+    // Show a single child
     public function show(Child $child) {
+        $child->load('records','mama'); // load relations
         return view('children.show', compact('child'));
     }
 
+    // Edit child
     public function edit(Child $child) {
         $mamas = Mama::all();
         return view('children.edit', compact('child','mamas'));
     }
 
+    // Update child
     public function update(Request $request, Child $child) {
         $validated = $request->validate([
-            'name'=>'required|string|max:255',
-            'dob'=>'required|date',
-            'mama_id'=>'required|exists:mamas,id',
-            'health_status'=>'nullable|string'
+            'name' => 'required|string|max:255',
+            'dob' => 'required|date',
+            'mama_id' => 'required|exists:mamas,id',
+            'health_status' => 'nullable|string'
         ]);
 
         $child->update($validated);
-        return redirect()->route('children.index');
+        return redirect()->route('children.index')->with('success', 'Child updated successfully!');
     }
 
+    // Delete child
     public function destroy(Child $child) {
         $child->delete();
-        return redirect()->route('children.index');
+        return redirect()->route('children.index')->with('success', 'Child deleted successfully!');
     }
 
-
+    // My children for logged-in mama
     public function myChildren()
-{
-    $mama = Mama::where('user_id', auth()->id())->with('children')->first();
+    {
+        $mama = Mama::where('user_id', auth()->id())->with('children.records')->first();
 
-    if (!$mama) {
-        return redirect()->back()->with('error', 'Mama profile not found.');
+        if (!$mama) {
+            return redirect()->back()->with('error', 'Mama profile not found.');
+        }
+
+        $children = $mama->children;
+
+        return view('children.my-children', compact('children', 'mama'));
     }
-
-    $children = $mama->children;
-
-    return view('children.my-children', compact('children', 'mama'));
-}
-
 }

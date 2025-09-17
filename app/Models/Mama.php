@@ -48,4 +48,16 @@ public function visitors()
                 ->withPivot('relationship')
                 ->withTimestamps();
 }
+
+public function reminders()
+{
+    return $this->hasMany(Reminder::class);
+}
+
+
+public function records()
+{
+    return $this->hasMany(MamaRecord::class);
+}
+
 }

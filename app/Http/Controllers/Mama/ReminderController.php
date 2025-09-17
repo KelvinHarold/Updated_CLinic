@@ -10,45 +10,52 @@ use App\Models\Child;
 
 class ReminderController extends Controller
 {
-   public function index()
+  public function index()
 {
-    $mama = auth()->user(); // currently logged-in mama
-    $reminders = Reminder::where('mama_id', $mama->id)->get();
+    // Pata mama profile inayohusiana na user aliye login
+    $mama = auth()->user()->mama; // relation ya User->mama()
+    
+    if (!$mama) {
+        return redirect()->route('reminders.index')
+                         ->withErrors(['msg' => 'Mama profile not found.']);
+    }
+
+    // Pata reminders zake
+    $reminders = $mama->reminders()->orderBy('reminder_date', 'asc')->get();
 
     return view('reminders.index', compact('reminders'));
 }
-    public function create()
-{
-    // Assume mama ni currently logged-in user
-    $mama = auth()->user(); // au select default mama unayotaka
-    $children = $mama->children ?? collect(); // Collection ya children ya mama, empty ikiwa hana
 
-    return view('reminders.create', compact('mama', 'children'));
-}
 
 public function store(Request $request)
 {
+    // Validate input
     $request->validate([
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
         'reminder_date' => 'required|date',
         'status' => 'required|in:pending,completed',
+        'child_id' => 'nullable|exists:children,id', // optional
     ]);
 
-    // Auto-fill mama_id
-    $mama_id = auth()->user()->id; // au default mama
-    $child_id = $request->child_id ?: null; // optional
+    // Pata mama profile inayohusiana na user aliye login
+    $mama = Mama::where('user_id', auth()->user()->id)->first();
+    if (!$mama) {
+        return back()->withErrors(['msg' => 'Mama profile not found for this user.']);
+    }
 
+    // Create reminder
     Reminder::create([
         'title' => $request->title,
         'description' => $request->description,
         'reminder_date' => $request->reminder_date,
         'status' => $request->status,
-        'mama_id' => $mama_id,
-        'child_id' => $child_id,
+        'mama_id' => $mama->id,
+        'child_id' => $request->child_id ?: null, // optional
     ]);
 
-    return redirect()->route('reminders.index')->with('success', 'Reminder created successfully.');
+    return redirect()->route('reminders.index')
+                     ->with('success', 'Reminder created successfully.');
 }
 
 
@@ -88,12 +95,22 @@ public function store(Request $request)
         return redirect()->route('reminders.index')->with('success', 'Reminder deleted successfully.');
     }
 
-    public function myReminders()
-{
-    $mama = auth()->user(); // mama aliye login
-    $reminders = Reminder::where('mama_id', $mama->id)->orderBy('reminder_date', 'asc')->get();
 
-    return view('reminders.my', compact('reminders'));
+public function create()
+{
+    // Pata mama profile inayohusiana na user aliye login
+    $mama = auth()->user()->mama; // User->mama() relation
+
+    if (!$mama) {
+        return redirect()->route('reminders.index')
+                         ->withErrors(['msg' => 'Mama profile not found.']);
+    }
+
+    // Pata children wa mama huyu
+    $children = $mama->children ?? collect();
+
+    // Return view
+    return view('reminders.create', compact('mama', 'children'));
 }
 
 }

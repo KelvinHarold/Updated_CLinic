@@ -33,18 +33,10 @@
         <!-- Mama auto-filled (hidden) -->
         <input type="hidden" name="mama_id" value="{{ $mama->id }}">
 
-        <!-- Child select  -->
-        @if($children->count())
-        <div>
-            <label class="block">Child (optional)</label>
-            <select name="child_id" class="w-full border rounded p-2">
-                <option value="">-- None --</option>
-                @foreach($children as $child)
-                    <option value="{{ $child->id }}">{{ $child->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        @endif
+         @php
+        $childId = $children->first()->id ?? null;
+    @endphp
+    <input type="hidden" name="child_id" value="{{ $childId }}">
 
         <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
     </form>

@@ -13,21 +13,17 @@ class AppointmentController extends Controller
     public function index(Request $request) {
     $query = Appointment::query();
 
-    // Filtering by status kama umeweka kwenye view
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-
     // Ikiwa ni Doctor -> aone zake tu
     if (Auth::user()->hasRole('Doctor')) {
         $query->where('user_id', Auth::id());
     }
 
-    // Ikiwa ni Mama -> aone zake tu
-    if (Auth::user()->hasRole('Mama')) {
-        $mama = Auth::user()->mama; // assuming Mama is linked via user
-        $query->where('mama_id', $mama->id ?? null);
-    }
+   // Ikiwa ni Patient (Pregnant/Breastfeeding) -> aone zake tu
+if (Auth::user()->hasAnyRole(['Pregnant Woman', 'Breastfeeding Woman'])) {
+    $mama = Auth::user()->mama; // assuming relation exists
+    $query->where('mama_id', $mama->id ?? null);
+}
+
 
     // Admin aone zote
     $appointments = $query->with(['mama','doctor'])->get();

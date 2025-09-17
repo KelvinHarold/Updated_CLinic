@@ -91,7 +91,7 @@ public function store(Request $request) {
     }
 
 
-    public function profile()
+  public function profile()
 {
     // Pata mama anayelogin kwa user_id
     $mama = Mama::where('user_id', auth()->id())->first();
@@ -100,7 +100,15 @@ public function store(Request $request) {
         abort(404, "Profile not found");
     }
 
-    return view('mamas.profile', compact('mama'));
+    // Pata mama_records grouped by date (branch kwa view)
+    $records = $mama->records()
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->groupBy(function ($record) {
+            return $record->created_at->format('Y-m-d'); // group by date
+        });
+
+    return view('mamas.profile', compact('mama', 'records'));
 }
 
 public function addRecord(Mama $mama)
@@ -115,9 +123,10 @@ public function storeRecord(Request $request, Mama $mama)
         'results' => 'required|string',
     ]);
 
-    $mama->update($validated);
+    $mama->records()->create($validated);
 
-    return redirect()->route('mamas.index')->with('success', 'Diagnosis & Results added successfully!');
+    return redirect()->route('mamas.index')
+        ->with('success', 'Diagnosis & Results added successfully!');
 }
 
 

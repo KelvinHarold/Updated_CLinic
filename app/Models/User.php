@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'contact',
         'address',
+         'profile_picture',
     ];
 
     /**
@@ -70,6 +71,11 @@ public function relatives()
 public function mamas() {
     return $this->belongsToMany(Mama::class, 'mama_visitor', 'visitor_id', 'mama_id');
 }
+
+public function mama() {
+    return $this->hasOne(Mama::class, 'user_id'); // assuming mama.user_id links to this user
+}
+
 
 
 }

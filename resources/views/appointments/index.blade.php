@@ -7,6 +7,7 @@
         <a href="{{ route('appointments.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded">Add Appointment</a>
     </div>
 
+    {{-- Filter by status --}}
     <form method="GET" action="{{ route('appointments.index') }}" class="mb-4">
         <select name="status" onchange="this.form.submit()" class="p-2 border rounded">
             <option value="">-- Filter by Status --</option>
@@ -16,6 +17,7 @@
         </select>
     </form>
 
+    {{-- Appointments Table --}}
     <table class="w-full bg-white shadow rounded">
         <thead>
             <tr class="bg-gray-100 text-left">
@@ -40,25 +42,37 @@
                 <td class="p-3">{{ ucfirst($appointment->status) }}</td>
                 <td class="p-3">{{ $appointment->feedback ?? '—' }}</td>
                 <td class="p-3 flex gap-2 items-center">
-                    <a href="{{ route('appointments.show',$appointment) }}" class="text-blue-600">View</a>
-                    <a href="{{ route('appointments.edit',$appointment) }}" class="text-yellow-600">Edit</a>
-
- @php
+                    <a href="{{ route('appointments.show', $appointment) }}" class="text-blue-600">View</a>
+                    <a href="{{ route('appointments.edit', $appointment) }}" class="text-yellow-600">Edit</a>
+@php
+    $user = auth()->user();
     $canGiveFeedback = false;
 
-    if(Auth::user()->hasRole('Doctor') && $appointment->user_id == Auth::id() && !$appointment->feedback) {
+    // Doctor anaona feedback link tu kwa appointments zilizotumwa kwake (yaliyo-created na patient)
+    if ($user->hasRole('Doctor') && $appointment->user_id == $user->id) {
+        // hii ni appointment aliyemuumba, hapana feedback
+        $canGiveFeedback = false;
+    } elseif ($user->hasRole('Doctor') && $appointment->user_id != $user->id && $appointment->mama_id && !$appointment->feedback) {
+        // appointment imemtumwa kwa doctor, haiko yet feedback
+        $canGiveFeedback = true;
+    }
+
+    // Patient (Pregnant/Breastfeeding) anaona feedback link tu kwa appointments alizotumwa na doctor
+    if ($user->hasAnyRole(['Pregnant Woman','Breastfeeding Woman']) && $appointment->mama?->user_id == $user->id && $appointment->user_id && !$appointment->feedback) {
         $canGiveFeedback = true;
     }
 @endphp
 
-@if($canGiveFeedback)
-    <a href="#" class="text-green-600"
-       onclick="openFeedbackModal({{ $appointment->id }}, '{{ $appointment->feedback ?? '' }}', '{{ $appointment->status }}')">
-        Feedback
-    </a>
-@endif
 
-                    <form action="{{ route('appointments.destroy',$appointment) }}" method="POST" onsubmit="return confirm('Delete this appointment?');">
+
+                    @if($canGiveFeedback)
+                        <a href="#" class="text-green-600"
+                           onclick="openFeedbackModal({{ $appointment->id }}, '{{ $appointment->feedback ?? '' }}', '{{ $appointment->status }}')">
+                            Feedback
+                        </a>
+                    @endif
+
+                    <form action="{{ route('appointments.destroy', $appointment) }}" method="POST" onsubmit="return confirm('Delete this appointment?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="text-red-600">Delete</button>

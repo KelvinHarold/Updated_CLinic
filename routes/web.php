@@ -25,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Dashboard
@@ -147,7 +148,7 @@ Route::post('/mamas/{mama}/store-record', [MamaController::class, 'storeRecord']
     Route::get('reminders/{reminder}/edit', [ReminderController::class, 'edit'])->name('reminders.edit');
     Route::put('reminders/{reminder}', [ReminderController::class, 'update'])->name('reminders.update');
     Route::delete('reminders/{reminder}', [ReminderController::class, 'destroy'])->name('reminders.destroy');
-    Route::get('reminders/my', [ReminderController::class, 'myReminders'])->name('reminders.my');
+    
 
 
   // List of users to start chat

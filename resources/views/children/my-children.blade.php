@@ -16,20 +16,31 @@
                     <th class="border px-4 py-2">Diagnosis</th>
                     <th class="border px-4 py-2">Results</th>
                     <th class="border px-4 py-2">Mama</th>
-                    
                 </tr>
             </thead>
             <tbody>
                 @foreach($children as $child)
-                <tr>
-                    <td class="border px-4 py-2">{{ $child->name }}</td>
-                    <td class="border px-4 py-2">{{ $child->dob }}</td>
-                    <td class="border px-4 py-2">{{ $child->health_status ?? 'N/A' }}</td>
-                    <td class="border px-4 py-2">{{ $child->diagnosis ?? 'N/A' }}</td>
-                    <td class="border px-4 py-2">{{ $child->results ?? 'N/A' }}</td>
-                    <td class="border px-4 py-2">{{ $child->mama->name ?? 'N/A' }}</td>
-                    </td>
-                </tr>
+                    @if($child->records->isEmpty())
+                        <tr>
+                            <td class="border px-4 py-2">{{ $child->name }}</td>
+                            <td class="border px-4 py-2">{{ $child->dob }}</td>
+                            <td class="border px-4 py-2">{{ $child->health_status ?? 'N/A' }}</td>
+                            <td class="border px-4 py-2">N/A</td>
+                            <td class="border px-4 py-2">N/A</td>
+                            <td class="border px-4 py-2">{{ $child->mama->name ?? 'N/A' }}</td>
+                        </tr>
+                    @else
+                        @foreach($child->records as $record)
+                            <tr>
+                                <td class="border px-4 py-2">{{ $child->name }}</td>
+                                <td class="border px-4 py-2">{{ $child->dob }}</td>
+                                <td class="border px-4 py-2">{{ $child->health_status ?? 'N/A' }}</td>
+                                <td class="border px-4 py-2">{{ $record->diagnosis }}</td>
+                                <td class="border px-4 py-2">{{ $record->results }}</td>
+                                <td class="border px-4 py-2">{{ $child->mama->name ?? 'N/A' }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
                 @endforeach
             </tbody>
         </table>

@@ -30,4 +30,10 @@ class Child extends Model
     public function growthMonitorings() {
         return $this->hasMany(GrowthMonitoring::class);
     }
+
+    public function records()
+{
+    return $this->hasMany(ChildRecord::class);
+}
+
 }
