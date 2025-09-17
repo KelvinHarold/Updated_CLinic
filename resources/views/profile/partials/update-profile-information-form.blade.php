@@ -1,13 +1,5 @@
 <section>
 
-    <div class="mt-4">
-    <label class="block font-medium text-sm text-gray-700" for="profile_picture">Profile Picture</label>
-    <input type="file" name="profile_picture" id="profile_picture" class="mt-1 block w-full">
-    @error('profile_picture')
-        <span class="text-red-600 text-sm">{{ $message }}</span>
-    @enderror
-</div>
-
     <header>
         <h2 class="text-lg font-medium text-gray-900">
             {{ __('Profile Information') }}
@@ -26,6 +18,10 @@
         @csrf
         @method('patch')
 
+        <div>
+            <label for="profile_picture">Profile Picture</label>
+    <input type="file" name="profile_picture" id="profile_picture">
+        </div>
         <div>
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />

@@ -21,45 +21,38 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information including profile picture.
      */
-    public function update(Request $request)
-    {
-        $user = $request->user();
+   public function update(Request $request)
+{
+    $user = $request->user();
 
-        // Validate input including profile picture
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'contact' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+        'contact' => 'nullable|string|max:20',
+        'address' => 'nullable|string|max:255',
+        'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        $user->fill($validated);
+    $user->fill($validated);
 
-        // Handle profile picture upload to public/images/profile_pictures
-        if ($request->hasFile('profile_picture')) {
-
-            // Delete old profile picture if exists
-            if ($user->profile_picture && file_exists(public_path($user->profile_picture))) {
-                unlink(public_path($user->profile_picture));
-            }
-
-            $file = $request->file('profile_picture');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('images/profile_pictures'), $filename);
-
-            $user->profile_picture = 'images/profile_pictures/' . $filename;
+    if ($request->hasFile('profile_picture')) {
+        // Delete old profile picture if exists
+        if ($user->profile_picture && file_exists(public_path($user->profile_picture))) {
+            unlink(public_path($user->profile_picture));
         }
 
-        // Reset email verification if email changed
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+        $user->profile_picture = 'storage/' . $path; // will resolve to public/storage/profile_pictures/...
     }
+
+    if ($user->isDirty('email')) {
+        $user->email_verified_at = null;
+    }
+
+    $user->save();
+
+    return redirect()->route('profile.edit')->with('status', 'profile-updated');
+}
 
     /**
      * Delete the user's account.
